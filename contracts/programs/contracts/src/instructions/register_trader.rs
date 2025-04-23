@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::state::*;
-use crate::error::*;
+use crate::error::ErrorCode;
 
 #[derive(Accounts)]
 pub struct RegisterTrader<'info> {
@@ -32,7 +32,7 @@ pub fn handler(ctx: Context<RegisterTrader>, initial_funds: u64) -> Result<()> {
         trader_state.free_funds = initial_funds;
         trader_state.locked_funds = 0;
         trader_state.orders = Vec::new();
-        trader_state.bump = *ctx.bumps.get("trader_state").unwrap();
+        trader_state.bump = ctx.bumps.trader_state;
         
         msg!("Registered new trader with {} initial funds", initial_funds);
     }

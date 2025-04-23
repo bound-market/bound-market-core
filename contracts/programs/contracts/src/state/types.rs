@@ -27,6 +27,8 @@ pub enum OrderStatus {
     Cancelled, // Order cancelled before matching
 }
 
+//--------------------Fix and Refigure out!!!!----------------------------------------------------->
+
 // Helper functions for percentage conversion
 pub fn percentage_to_scaled(percentage: f64) -> i64 {
     (percentage * PERCENTAGE_SCALE as f64) as i64

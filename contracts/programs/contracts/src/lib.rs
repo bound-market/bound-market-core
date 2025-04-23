@@ -8,7 +8,7 @@ pub mod state;
 use anchor_lang::prelude::*;
 
 pub use constants::*;
-pub use error::*;
+// use crate::error::ErrorCode;
 pub use instructions::*;
 pub use state::*;
 
@@ -21,7 +21,7 @@ pub mod contracts {
 
     // Initialize a new orderbook
     pub fn initialize(ctx: Context<Initialize>, asset_type_input: u8) -> Result<()> {
-        instructions::initialize::handler(ctx)
+        instructions::initialize::handler(ctx,asset_type_input)
     }
     
     // Register a new trader or add funds to existing trader

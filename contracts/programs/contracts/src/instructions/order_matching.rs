@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::state::*;
-use crate::error::*;
+use crate::error::ErrorCode;
 
 /// Accounts for matching a position order with existing liquidity
 #[derive(Accounts)]

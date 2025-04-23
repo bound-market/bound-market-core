@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::state::*;
-use crate::error::*;
+use crate::error::ErrorCode;
 use std::collections::BTreeMap;
 
 /// Accounts for placing a StayIn liquidity order
