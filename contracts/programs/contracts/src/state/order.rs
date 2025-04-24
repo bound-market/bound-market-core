@@ -27,6 +27,8 @@ impl Ord for OrderId {
     }
 }
 
+// @dev: overlook 
+
 impl PartialOrd for OrderId {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
@@ -53,6 +55,7 @@ pub struct Order {
     pub trader: Pubkey,
     
     // Current base price when order was placed (for reference)
+    // need to remove this
     pub base_price: u64,
     
     // Creation timestamp
@@ -62,5 +65,5 @@ pub struct Order {
     pub status: OrderStatus,
     
     // If matched, the expiration timestamp
-    pub expiration: Option<u64>,
-} 
+    pub expiration: Option<u64>, // 24 hrs ???
+}

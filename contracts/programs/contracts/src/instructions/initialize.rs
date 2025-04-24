@@ -42,8 +42,8 @@ pub fn handler(
         orderbook.asset_type = asset_type;
         orderbook.base_price = 0; // Will be updated with oracle
         orderbook.next_sequence_number = 1;
-        orderbook.min_percentage_width = 0.5;
-        orderbook.max_percentage_width = 10.0;
+        orderbook.min_percentage_width = 0.1;
+        orderbook.max_percentage_width = 100.0;
         orderbook.authority = ctx.accounts.authority.key();
         orderbook.bump = ctx.bumps.orderbook;
         

@@ -33,7 +33,3 @@ pub enum OrderStatus {
 pub fn percentage_to_scaled(percentage: f64) -> i64 {
     (percentage * PERCENTAGE_SCALE as f64) as i64
 }
-
-pub fn scaled_to_percentage(scaled: i64) -> f64 {
-    scaled as f64 / PERCENTAGE_SCALE as f64
-} 

@@ -72,6 +72,7 @@ impl PassageOrderbook {
         let timestamp = Self::get_current_timestamp();
         let sequence_number = self.next_sequence_number;
         self.next_sequence_number += 1;
+
         
         OrderId {
             width_percentage_scaled: percentage_to_scaled(width_percentage),

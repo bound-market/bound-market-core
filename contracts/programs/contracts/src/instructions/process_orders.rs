@@ -122,6 +122,8 @@ pub fn settle_order_handler(ctx: Context<SettleOrder>, current_price: u64) -> Re
             },
         }
     } else {
+
+        // Time based payout after 24 hours
         0 // No payout if not profitable
     };
     
