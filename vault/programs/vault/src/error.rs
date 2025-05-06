@@ -16,4 +16,27 @@ pub enum ErrorCode {
     
     #[msg("Withdrawal not authorized")]
     UnauthorizedWithdrawal,
+
+//    <-----------------Position------------->
+
+    #[msg("Position has already been settled")]
+    PositionAlreadySettled,
+    
+    #[msg("Position has not been settled yet")]
+    PositionNotSettled,
+    
+    #[msg("Invalid price range")]
+    InvalidRange,
+    
+    #[msg("Order ID not found")]
+    OrderNotFound,
+
+    #[msg("Price data is too stale.")]
+    StalePriceFeed,
+
+    #[msg("Failed to load price feed.")]
+    InvalidPriceFeed,
+
+    #[msg("Please Verify price update!")]
+    UnverifiedPriceUpdate,
 }
