@@ -44,44 +44,54 @@ pub struct ClaimPosition<'info> {
 impl<'info> ClaimPosition<'info> {
     pub fn claim(&mut self, _bumps: &ClaimPositionBumps) -> Result<()> {
         let position = &mut self.position;
-
-        let settlement_data = position
-            .settlement_data
-            .ok_or(ErrorCode::PositionNotSettled)?;
-
-        let payout_amount =
-            (position.amount as u128 * settlement_data.payout_percentage as u128 / 100) as u64;
-
-        position.claim()?; // mark as claimed
-
-        if payout_amount > 0 {
-            let seeds = &[
-                b"vault",
-                self.vault_state.to_account_info().key.as_ref(),
-                &[self.vault_state.vault_bump],
-            ];
-
-            let signer_seeds = &[&seeds[..]];
-
-            // Use Anchor's CPI helper for system_program::transfer
-            let cpi_ctx = CpiContext::new_with_signer(
-                self.system_program.to_account_info(),
-                Transfer {
-                    from: self.vault.clone(),
-                    to: self.user.to_account_info(),
-                },
-                signer_seeds,
-            );
-
-            transfer(cpi_ctx, payout_amount)?;
+        let user = &self.user;
+        let vault = &self.vault;
+        
+        // Mark position as claimed
+        position.claim()?;
+        
+        // Get the payout amount based on settlement data
+        let percentage = position.settlement_data.as_ref().unwrap().payout_percentage;
+        
+        // Calculate payout amount based on percentage
+        // 100 = full refund, 200 = 2x payout, etc.
+        let payout_amount = (position.amount as u128 * percentage as u128 / 100) as u64;
+        
+        // Skip transfer if payout is 0
+        if payout_amount == 0 {
+            emit!(PositionClaimedEvent {
+                position: position.key(),
+                user: position.user,
+                payout_amount: 0
+            });
+            return Ok(());
         }
+        
+        // Transfer payout from vault to user
+        let seeds = &[
+            b"vault",
+            self.vault_state.to_account_info().key.as_ref(),
+            &[self.vault_state.vault_bump]
+        ];
+        let signer = &[&seeds[..]];
+        
+        let cpi_ctx = CpiContext::new_with_signer(
+            self.system_program.to_account_info(),
+            Transfer {
+                from: vault.to_account_info(),
+                to: user.to_account_info()
+            },
+            signer
+        );
 
+        transfer(cpi_ctx, payout_amount)?;
+        
         emit!(PositionClaimedEvent {
             position: position.key(),
             user: position.user,
-            payout_amount,
+            payout_amount
         });
-
+        
         Ok(())
     }
 }

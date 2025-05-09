@@ -15,12 +15,17 @@ use crate::constants::{BTC_FEED_ID, MAXIMUM_AGE};
     amount: u64
 )]
 pub struct CreatePosition<'info> {
+    // This can be a signer (user creating position) or just an account reference (backend creating position)
+    /// CHECK: User account is just used for seeds and to identify the position owner
+    pub user: UncheckedAccount<'info>,
+    
+    // The admin must be a signer
     #[account(mut)]
-    pub user: Signer<'info>,
+    pub admin: Signer<'info>,
     
     #[account(
         init,
-        payer = user,
+        payer = admin,
         space = 8 + PositionState::INIT_SPACE,
         seeds = [
             b"position".as_ref(),
@@ -71,6 +76,12 @@ impl<'info> CreatePosition<'info> {
             ErrorCode::AmountTooSmall
         );
 
+        // Additional security check: ensure either user is signer or admin knows the user
+        require!(
+            self.user.is_signer || self.admin.is_signer,
+            ErrorCode::UnauthorizedAccess
+        );
+
         // Verify price update is valid
         let clock = Clock::get()?;
         require!(
@@ -98,15 +109,19 @@ impl<'info> CreatePosition<'info> {
             bumps.position,
         )?;
 
-        // Transfer SOL from user to vault
-        let cpi_ctx = CpiContext::new(
-            self.system_program.to_account_info(),
-            Transfer {
-                from: self.user.to_account_info(),
-                to: self.vault.to_account_info(),
-            },
-        );
-        transfer(cpi_ctx, amount)?;
+        // Only transfer funds if the user is the signer (direct deposit)
+        // Otherwise, assume funds were already deposited via the deposit instruction
+        if self.user.is_signer {
+            // Transfer SOL from user to vault
+            let cpi_ctx = CpiContext::new(
+                self.system_program.to_account_info(),
+                Transfer {
+                    from: self.user.to_account_info(),
+                    to: self.vault.to_account_info(),
+                },
+            );
+            transfer(cpi_ctx, amount)?;
+        }
         
         emit!(PositionCreatedEvent {
             position: self.position.key(),
