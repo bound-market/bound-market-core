@@ -1,32 +1,24 @@
 {
-  "name": "orderbook_frontend",
-  "version": "0.1.0",
-  "private": true,
+  "license": "ISC",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+    "test:devnet": "anchor test --skip-local-validator --provider.cluster devnet"
   },
   "dependencies": {
-    "@solana/wallet-adapter-base": "^0.9.26",
-    "@solana/wallet-adapter-phantom": "^0.9.27",
-    "@solana/wallet-adapter-react": "^0.15.38",
-    "@solana/wallet-adapter-react-ui": "^0.9.38",
-    "@solana/web3.js": "^1.98.2",
-    "@supabase/supabase-js": "^2.49.4",
-    "bs58": "^6.0.0",
-    "next": "15.3.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "tweetnacl": "^1.0.3"
+    "@coral-xyz/anchor": "^0.31.1",
+    "@pythnetwork/hermes-client": "^1.0.0",
+    "@pythnetwork/pyth-solana-receiver": "^0.9.1",
+    "rpc-websockets": "^5.2.2"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "@types/bn.js": "^5.1.0",
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9.0.0",
+    "chai": "^4.3.4",
+    "mocha": "^9.0.3",
+    "prettier": "^2.6.2",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^5.7.3"
   }
 }
