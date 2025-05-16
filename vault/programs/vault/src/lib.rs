@@ -11,7 +11,7 @@ pub use constants::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("YyVBCibDa4RY91ViZRHNdKe1MKKLqtfXhvYxufSSkWW");
+declare_id!("BGQ6npBd8Fv4DWUjgNtm149Yh1VNR2yseaGVSjs5ksrB");
 
 #[program]
 pub mod vault {

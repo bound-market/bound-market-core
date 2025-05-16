@@ -26,7 +26,7 @@ pub struct CheckPosition<'info> {
         owner = pyth_solana_receiver_sdk::ID,
         constraint = price_update.verification_level == VerificationLevel::Full,
     )]
-    pub price_update: Account<'info, PriceUpdateV2>,
+    pub price_update: Account<'info, PriceUpdateV2>
 }
 
 impl<'info> CheckPosition<'info> {
