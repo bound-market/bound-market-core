@@ -39,4 +39,16 @@ pub enum ErrorCode {
 
     #[msg("Please Verify price update!")]
     UnverifiedPriceUpdate,
+
+    //    <-----------------Pool------------->
+
+    #[msg("Insufficient balance in trading pool")]
+    InsufficientPoolBalance,
+
+    #[msg("Math overflow occurred")]
+    MathOverflow,
+
+      #[msg("Insufficient balance in trading vault")]
+    InsufficientVaultBalance,
+
 }
