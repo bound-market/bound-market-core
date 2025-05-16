@@ -1,8 +1,8 @@
+// Updated create_position.rs
 use anchor_lang::prelude::*;
 use anchor_lang::system_program::{transfer, Transfer};
 use pyth_solana_receiver_sdk::price_update::{get_feed_id_from_hex, PriceUpdateV2, VerificationLevel};
-use crate::state::{PositionState, PositionType};
-use crate::state::VaultState;
+use crate::state::{PositionState, PositionType, TradingPool, VaultState};
 use crate::error::ErrorCode;
 use crate::constants::{BTC_FEED_ID, MAXIMUM_AGE};
 
@@ -12,20 +12,15 @@ use crate::constants::{BTC_FEED_ID, MAXIMUM_AGE};
     lower_bound: u64,
     upper_bound: u64,
     order_id: u64,
-    amount: u64
+    amount: u64,
 )]
 pub struct CreatePosition<'info> {
-    // This can be a signer (user creating position) or just an account reference (backend creating position)
-    /// CHECK: User account is just used for seeds and to identify the position owner
-    pub user: UncheckedAccount<'info>,
-    
-    // The admin must be a signer
     #[account(mut)]
-    pub admin: Signer<'info>,
+    pub user: Signer<'info>,
     
     #[account(
         init,
-        payer = admin,
+        payer = user,
         space = 8 + PositionState::INIT_SPACE,
         seeds = [
             b"position".as_ref(),
@@ -36,19 +31,35 @@ pub struct CreatePosition<'info> {
     )]
     pub position: Account<'info, PositionState>,
     
-    // Vault account where SOL is stored
+    // User's personal vault
     #[account(
         mut,
-        seeds = [b"vault", vault_state.key().as_ref()],
-        bump = vault_state.vault_bump,
+        seeds = [b"vault", user_vault_state.key().as_ref()],
+        bump = user_vault_state.vault_bump,
     )]
-    pub vault: SystemAccount<'info>,
+    pub user_vault: SystemAccount<'info>,
     
     #[account(
         seeds = [b"vault_state", user.key().as_ref()],
-        bump = vault_state.state_bump
+        bump = user_vault_state.state_bump
     )]
-    pub vault_state: Account<'info, VaultState>,
+    pub user_vault_state: Account<'info, VaultState>,
+    
+    // Trading pool 
+    #[account(
+        mut,
+        seeds = [b"trading_pool"],
+        bump = trading_pool.bump,
+    )]
+    pub trading_pool: Account<'info, TradingPool>,
+    
+    // Trading pool vault
+    #[account(
+        mut,
+        seeds = [b"trading_pool_vault", trading_pool.key().as_ref()],
+        bump = trading_pool.vault_bump
+    )]
+    pub trading_pool_vault: SystemAccount<'info>,
     
     // Pyth price update
     #[account(
@@ -67,7 +78,7 @@ impl<'info> CreatePosition<'info> {
         lower_bound: u64,
         upper_bound: u64,
         order_id: u64,
-        amount: u64, 
+        amount: u64,
         bumps: &CreatePositionBumps
     ) -> Result<()> {
         require!(lower_bound < upper_bound, ErrorCode::InvalidRange);
@@ -76,10 +87,11 @@ impl<'info> CreatePosition<'info> {
             ErrorCode::AmountTooSmall
         );
 
-        // Additional security check: ensure either user is signer or admin knows the user
+        // Check user vault balance
+        let user_vault_balance = self.user_vault.lamports();
         require!(
-            self.user.is_signer || self.admin.is_signer,
-            ErrorCode::UnauthorizedAccess
+            user_vault_balance >= amount,
+            ErrorCode::InsufficientVaultBalance
         );
 
         // Verify price update is valid
@@ -98,6 +110,7 @@ impl<'info> CreatePosition<'info> {
         
         let start_time = clock.unix_timestamp;
 
+        // Initialize position state
         self.position.initialize(
             self.user.key(),
             position_type,
@@ -109,19 +122,30 @@ impl<'info> CreatePosition<'info> {
             bumps.position,
         )?;
 
-        // Only transfer funds if the user is the signer (direct deposit)
-        // Otherwise, assume funds were already deposited via the deposit instruction
-        if self.user.is_signer {
-            // Transfer SOL from user to vault
-            let cpi_ctx = CpiContext::new(
-                self.system_program.to_account_info(),
-                Transfer {
-                    from: self.user.to_account_info(),
-                    to: self.vault.to_account_info(),
-                },
-            );
-            transfer(cpi_ctx, amount)?;
-        }
+        // Transfer funds from user vault to trading pool vault
+        let user_vault_seeds = &[
+            b"vault".as_ref(),
+            self.user_vault_state.to_account_info().key.as_ref(),
+            &[self.user_vault_state.vault_bump],
+        ];
+        let signer_seeds = &[&user_vault_seeds[..]];
+        
+        let cpi_ctx = CpiContext::new_with_signer(
+            self.system_program.to_account_info(),
+            Transfer {
+                from: self.user_vault.to_account_info(),
+                to: self.trading_pool_vault.to_account_info(),
+            },
+            signer_seeds,
+        );
+        
+        transfer(cpi_ctx, amount)?;
+        
+        // Update trading pool amounts
+        self.trading_pool.total_active_amount = self.trading_pool.total_active_amount.checked_add(amount)
+            .ok_or(ErrorCode::MathOverflow)?;
+        self.trading_pool.total_pool_amount = self.trading_pool.total_pool_amount.checked_add(amount)
+            .ok_or(ErrorCode::MathOverflow)?;
         
         emit!(PositionCreatedEvent {
             position: self.position.key(),
@@ -132,6 +156,7 @@ impl<'info> CreatePosition<'info> {
             start_time: self.position.start_time,
             amount: self.position.amount,
             order_id: self.position.order_id,
+            trading_pool: self.trading_pool.key(),
         });
 
         Ok(())
@@ -148,4 +173,5 @@ pub struct PositionCreatedEvent {
     pub start_time: i64,
     pub amount: u64,
     pub order_id: u64,
+    pub trading_pool: Pubkey,
 }

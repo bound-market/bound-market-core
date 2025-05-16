@@ -22,3 +22,9 @@ pub use check_position::*;
 
 pub mod claim_position;
 pub use claim_position::*;
+
+
+// <---------------- Pool ----------------------->
+
+pub mod init_trading_pool;
+pub use init_trading_pool::*;
