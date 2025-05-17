@@ -19,6 +19,10 @@ The platform is built on Solana for high-speed, low-cost trading with real-time 
 
 ![Bound Market Architecture Diagram](./docs/architecture.jpeg)
 
+## Technical Architectue Understanding Video
+
+[![Bound Market Technical Architecture]](https://youtu.be/m5CbGHfHXys)
+
 The project consists of three main components:
 
 ### 1. Smart Contract
