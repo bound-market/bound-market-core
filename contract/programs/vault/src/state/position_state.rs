@@ -6,16 +6,16 @@ use crate::error::ErrorCode;
 #[account]
 #[derive(InitSpace)]
 pub struct PositionState {
-    pub user: Pubkey,              // User who created this position
-    pub position_type: PositionType, // StayIn or Breakout
-    pub lower_bound: u64,           // Lower price boundary (passed from off-chain)
-    pub upper_bound: u64,           // Upper price boundary (passed from off-chain)
-    pub start_time: i64,            // When the position became active (order matched)
-    pub order_id: u64,              // Reference to off-chain order ID
-    pub status: PositionStatus,     // Current position status
-    pub amount: u64,                // Position size
-    pub settlement_data: Option<SettlementData>, // Only populated when settled
-    pub bump: u8,                   // PDA bump
+    pub user: Pubkey,              
+    pub position_type: PositionType, 
+    pub lower_bound: u64,           
+    pub upper_bound: u64,           
+    pub start_time: i64,            
+    pub order_id: u64,              
+    pub status: PositionStatus,     
+    pub amount: u64,                
+    pub settlement_data: Option<SettlementData>, 
+    pub bump: u8,                   
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq,Eq, InitSpace)]
@@ -62,17 +62,17 @@ impl PositionState {
         Ok(())
     }
     
-    // Get position expiry time (start_time + 24 hours)
+    // position expiry time (start_time + 24 hours)
     pub fn get_expiry_time(&self) -> i64 {
-        self.start_time + 24 * 60 * 60 // 24 hours in seconds
+        self.start_time + 24 * 60 * 60 
     }
     
-    // Check if a position is expired
+    // if a position is expired
     pub fn is_expired(&self, current_time: i64) -> bool {
         current_time >= self.get_expiry_time()
     }
     
-    // Check if price is outside the range
+    // if price is outside the range
     pub fn is_outside_range(&self, current_price: u64) -> bool {
         current_price < self.lower_bound || current_price > self.upper_bound
     }
@@ -105,23 +105,21 @@ impl PositionState {
         Ok(())
     }
     
-   // Calculate payout based on position outcome with fair time-based distribution
+   // Payout based on position outcome with fair time-based distribution
 pub fn calculate_payout(&self, current_time: i64, current_price: u64) -> u8 {
     let is_outside_range = self.is_outside_range(current_price);
     let expiry_time = self.get_expiry_time();
     let is_expired = current_time >= expiry_time;
     
-    // Position duration in seconds (24 hours = 86400 seconds)
-    let total_duration_seconds = 86400; // 24 hours in seconds
+    let total_duration_seconds = 86400; 
     
-    // Elapsed time in seconds (capped at 86400)
     let elapsed_seconds = (current_time - self.start_time).min(total_duration_seconds).max(0);
     
     match (self.position_type, is_outside_range, is_expired) {
         // StayIn position outcomes
         (PositionType::StayIn, false, true) => {
             // Price stayed in range until expiry = full win
-            200 // 2x return (100% profit)
+            200 
         },
         (PositionType::StayIn, false, false) => {
             // Position still active, price in range

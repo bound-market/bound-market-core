@@ -1,4 +1,3 @@
-// Update lib.rs to include the new instructions
 #![allow(unexpected_cfgs)]
 
 pub mod constants;
@@ -65,13 +64,11 @@ pub mod vault {
         Ok(())
     }
     
-    // Check position status (can be called by anyone, including a cron job)
     pub fn check_position(ctx: Context<CheckPosition>) -> Result<()> {
         ctx.accounts.check_position(&ctx.bumps)?;
         Ok(())
     }
     
-    // Claim position proceeds (called by position owner)
     pub fn claim_position(ctx: Context<ClaimPosition>) -> Result<()> {
         ctx.accounts.claim(&ctx.bumps)?;
         Ok(())
