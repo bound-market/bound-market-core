@@ -2,10 +2,6 @@
 
 Bet Range Bound Volatility on Crypto Markets
 
-## Demonstration of Product
-
-![Bound Market Product Demo](./docs/demo.mp4)
-
 ## Project Overview
 
 Bound Market enables users to bet on volatility movements of crypto markets for certain time durations. The platform allows users to place orders for two position types:
