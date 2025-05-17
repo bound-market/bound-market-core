@@ -1,17 +1,23 @@
-# Bound Market Core
+# Bound Market
 
-Decentralized Binary Markets for Predicting Volatility in Digital Assets
+Bet Range Bound Volatility on Crypto Markets
+
+## Demonstration of Product
+
+![Bound Market Product Demo](./docs/demo.mp4)
 
 ## Project Overview
 
-Bound Market Core is a full-stack DeFi application that enables users to trade binary options based on Bitcoin price movements. The platform allows users to place orders for two position types:
+Bound Market enables users to bet on volatility movements of crypto markets for certain time durations. The platform allows users to place orders for two position types:
 
-1. **STAY_IN**: Predict that BTC price will remain within specified bounds for 24 hours
-2. **BREAKOUT**: Predict that BTC price will break out of specified bounds within 24 hours
+1. **STAY_IN**: Bet on price will remain within specified bounds for 24 hours
+2. **BREAKOUT**: Bet on price will break out of specified bounds within 24 hours
 
 The platform is built on Solana for high-speed, low-cost trading with real-time price data from Pyth Network.
 
 ## Platform Architecture
+
+![Bound Market Architecture Diagram](./docs/architecture.jpeg)
 
 The project consists of three main components:
 
