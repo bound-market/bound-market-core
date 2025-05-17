@@ -1,7 +1,6 @@
 # Bound Market Core
 
-A complete decentralized binary options trading platform built on Solana blockchain. Predict Bitcoin price movements and earn rewards based on your insights.
-
+Decentralized Binary Markets for Predicting Volatility in Digital Assets
 
 ## Project Overview
 
