@@ -16,7 +16,7 @@ export default function Footer() {
               </svg>
             </a>
             <a 
-              href="#" 
+              href="https://github.com/bound-market/bound-market-core" 
               className="text-zinc-500 hover:text-white transition-colors"
               target="_blank"
               rel="noopener noreferrer"
